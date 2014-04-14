@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+	    <title>Demo</title>
+	    <style>
+		html {
+			font-family: Arial !important;
+		}
+		.generator, p, #selectGroup,#numberOfMembers {margin-left:20px}
+		ol {
+			margin: 1.25em
+			list-style-type:none;
+			margin:0;
+			padding:0;
+		}
+		ul
+		{
+		list-style-type:none;
+		margin:0;
+		padding:0;
+		}
+		.essayHere {
+			width: 35em;
+		}
+		li {
+			/*display:inline;*/
+			float: left;
+			padding-left: 1em;
+			padding-top: 1em;
+		}
+		.gradeOption {
+			font-size: 14pt;
+		}
+		#totalGrade {
+			font-size: 14pt;
+			padding-top: .75em;
+			border-top: solid black;
+			margin-top: .5em;
+			font-weight: bold;
+			color: red;
+
+		}
+		#defaultTotalGradeInput {
+			width: 4em;
+			font-size: 14pt;
+		}
+		#essayDiv {
+			width: 35em;
+			height: 25em;
+			padding: .75em;
+			margin: .75em;
+			border: .1em solid black;
+			background-color: #FFFBED;
+			overflow: scroll;
+		}
+		.alert {
+			color: #008719;
+			background-color: #FFFFC4;
+			/*width: 10em;*/
+			padding: .75em;
+			margin-left: 1.25em;
+			margin-top: .75em;
+			border: 1pt solid #857F73;
+		}
+
+		.exampleError {
+			width: 70%;
+			padding-top:0;
+
+		}
+		.moreComments {
+			width: 30em;
+			height: 10em;
+			padding-top:0;
+		}
+
+		/*changing the default color for selected info*/
+		#essayDiv::selection {
+			background: #ffb7b7; /* Safari */
+			}
+		#essayDiv::-moz-selection {
+			background: #ffb7b7; /* Firefox */
+		}
+
+		</style>
+		<!-- ATD styling -->
+		 <link rel="stylesheet" type="text/css" media="screen" href="css/atd.css" />
+	</head>
+	<body>
+		<div class="alerts">
+		<input type="submit" value="Email Comments">
+		<input type="text" value="user@email.com" id="email">
+		<input type="text" value="Your Essay" id="essayTitle">
+
+		<button type="button" id="copyToClipboard">Copy Comments</button>
+		</div>
+		<ul>
+			<li>
+				<!-- Essay here-->
+
+				<div class="selectedInfo">Submit Essay Below
+					<!-- ATD spelling check button -->
+					<button type="button" id="checkText">Check Spelling</button>
+				</div>
+
+				<textarea name="essay" id="essay" cols="80" rows="20">Essay Here</textarea>
+				<div class="GradingOptions">
+					<div id="gradeCategories"><h3>Grade out of <input type="number" value="60" id="defaultTotalGradeInput"/></h3></div>
+			</li>
+			<li>
+			<!-- Right Side Panel for Grading -->
+					<select name="EvalCategories" id="evalCategories">
+					</select>
+					<button type="button" id="nextCategory">Next Category</button>
+				</div>
+				<div class="checkBoxOptions">Options Show below</div>
+			</li>
+		</ul>
+		
+		
+		<br>
+		
+	</body>
+	<footer>
+		<!-- Jquery load from web -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+		</script>
+	  <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+
+
+	 <!-- 2. load the atd.textarea.js - this script makes it easy to attach AtD to a textarea -->
+	 <script src="scripts/jquery.atd.textarea.js"></script>
+
+	 <!-- 3. this script is a hack that allows cross-domain AJAX -->
+	 <script src="scripts/csshttprequest.js"></script>
+
+	  <!-- load comments -->
+	  <script src="./res/allComments.js"></script>
+	  <!-- load main file -->
+	  <script src="./res/grading.js"></script>
+
+	  <script>//ATD to check essay
+		function check(id)
+		 {
+		    AtD.checkCrossAJAX(id, 
+		    {
+		       success : function(errorCount) 
+		       {
+		          if (errorCount == 0)
+		          {
+		             $(".alerts").append('<div class="alert">No Errors found!</div>');
+		             $(".alert").delay(2000).fadeOut(800);
+		          }
+
+		       },
+
+		       error : function(reason)
+		       {
+		          alert(reason);
+		       }
+		    });
+		}
+	 $("#checkText").click(function () {
+	 	if ($("#essay").length>0) {
+	 		id="essayDiv";
+	 		essayText = $("#essay").val().replace(/\r?\n/g,'<br/>'); //convert newlines into <br> tags
+
+		 	$(this).parent().append("<div id='"+id+"' contentEditable=true>"+essayText+"</div>");
+		 	check(id);
+		 	$("#essay").remove();
+		} else 
+		{
+			id="essayDiv";
+		 	check(id);
+		 }
+	 	
+	 });
+	</script>
+	</footer>
+</html>
