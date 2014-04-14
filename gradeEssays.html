@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+	    <title>Demo</title>
+	    <link rel="stylesheet" type="text/css" href="css/main.css">
+		<!-- ATD styling -->
+		 <link rel="stylesheet" type="text/css" media="screen" href="css/atd.css" />
+	</head>
+	<body>
+		<div class="alerts">
+		<input type="submit" value="Email Comments">
+		<input type="text" value="user@email.com" id="email">
+		<input type="text" value="Your Essay" id="essayTitle">
+
+		<button type="button" id="copyToClipboard">Copy Comments</button>
+		</div>
+		<ul>
+			<li>
+				<!-- Essay here-->
+
+				<div class="selectedInfo">Submit Essay Below
+					<!-- ATD spelling check button -->
+					<button type="button" id="checkText">Check Spelling</button>
+				</div>
+
+				<textarea name="essay" id="essay" cols="80" rows="20">Essay Here</textarea>
+				<div class="GradingOptions">
+					<div id="gradeCategories"><h3>Grade out of <input type="number" value="60" id="defaultTotalGradeInput"/></h3></div>
+			</li>
+			<li>
+			<!-- Right Side Panel for Grading -->
+					<select name="EvalCategories" id="evalCategories">
+					</select>
+					<button type="button" id="nextCategory">Next Category</button>
+				</div>
+				<div class="checkBoxOptions">Options Show below</div>
+			</li>
+		</ul>
+		
+		
+		<br>
+		
+	</body>
+	<footer>
+		<!-- Jquery load from web -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+		</script>
+	  <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+
+
+	 <!-- 2. load the atd.textarea.js - this script makes it easy to attach AtD to a textarea -->
+	 <script src="scripts/jquery.atd.textarea.js"></script>
+
+	 <!-- 3. this script is a hack that allows cross-domain AJAX -->
+	 <script src="scripts/csshttprequest.js"></script>
+
+	  <!-- load comments -->
+	  <script src="./res/allComments.js"></script>
+	  <!-- load main file -->
+	  <script src="./res/grading.js"></script>
+
+	  <script>//ATD to check essay
+		function check(id)
+		 {
+		    AtD.checkCrossAJAX(id, 
+		    {
+		       success : function(errorCount) 
+		       {
+		          if (errorCount == 0)
+		          {
+		             $(".alerts").append('<div class="alert">No Errors found!</div>');
+		             $(".alert").delay(2000).fadeOut(800);
+		          }
+
+		       },
+
+		       error : function(reason)
+		       {
+		          alert(reason);
+		       }
+		    });
+		}
+	 $("#checkText").click(function () {
+	 	if ($("#essay").length>0) {
+	 		id="essayDiv";
+	 		essayText = $("#essay").val().replace(/\r?\n/g,'<br/>'); //convert newlines into <br> tags
+
+		 	$(this).parent().append("<div id='"+id+"' contentEditable=true>"+essayText+"</div>");
+		 	check(id);
+		 	$("#essay").remove();
+		} else 
+		{
+			id="essayDiv";
+		 	check(id);
+		 }
+	 	
+	 });
+	</script>
+	</footer>
+</html>
