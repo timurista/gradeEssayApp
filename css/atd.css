@@ -118,3 +118,8 @@
 {
    outline:none
 }
+
+select option {
+   width: 30px;
+   height: 30px;
+}
