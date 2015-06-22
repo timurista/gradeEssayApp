@@ -1,8 +1,9 @@
 <!doctype html>
+<!doctype html>
 <html>
 	<head>
 		<meta charset="utf-8" />
-	    <title>Demo</title>
+	    <title>Quick Essay Grader</title>
 	    <link rel="stylesheet" type="text/css" href="css/main.css">
 		<!-- ATD styling -->
 		 <link rel="stylesheet" type="text/css" media="screen" href="css/atd.css" />
@@ -14,25 +15,32 @@
 		<input type="text" value="Your Essay" id="essayTitle">
 
 		<button type="button" id="copyToClipboard">Copy Comments</button>
+		<input type="file" name="csvFile" id="csvFile" />
 		</div>
 		<ul>
 			<li>
 				<!-- Essay here-->
 
-				<div class="selectedInfo">Submit Essay Below
+				<div class="selectedInfo">
 					<!-- ATD spelling check button -->
-					<button type="button" id="checkText">Check Spelling</button>
+					<button type="button" id="checkText">Auto Grade</button>
+					<a href="http://www.polishmywriting.com/" target="_blank">Check Writing using ATD</a>
+					<a href="https://app.grammarly.com/" target="_blank">Use Grammarly</a>
+					<span id="gradePercent" class='grade' ></span>
 				</div>
 
-				<textarea name="essay" id="essay" cols="80" rows="20">Essay Here</textarea>
+				<div id="essay" class="essay" contentEditable="true">Essay Here</div>
 				<div class="GradingOptions">
 					<div id="gradeCategories"><h3>Grade out of <input type="number" value="60" id="defaultTotalGradeInput"/></h3></div>
+				<div id="callback_test" style="color:red">
+					Test Call back here
+				</div>
 			</li>
 			<li>
 			<!-- Right Side Panel for Grading -->
 					<select name="EvalCategories" id="evalCategories">
 					</select>
-					<button type="button" id="nextCategory">Next Category</button>
+					<button type="button" id="reset">Reset Checkboxes</button>
 				</div>
 				<div class="checkBoxOptions">Options Show below</div>
 			</li>
@@ -44,8 +52,8 @@
 	</body>
 	<footer>
 		<!-- Jquery load from web -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
-		</script>
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+	  </script>
 	  <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
 
 
@@ -58,44 +66,15 @@
 	  <!-- load comments -->
 	  <script src="./res/allComments.js"></script>
 	  <!-- load main file -->
+	  
 	  <script src="./res/grading.js"></script>
+	  
+	  <script src="./res/grammarCheckInput.js"></script>
+	  <script src="./res/demoText.js"></script>
+	  <script src="./res/autoGrade.js"></script> -->
+	  <!-- load paragraph class -->
+	  <script src="./paragraph.js"></script>
 
-	  <script>//ATD to check essay
-		function check(id)
-		 {
-		    AtD.checkCrossAJAX(id, 
-		    {
-		       success : function(errorCount) 
-		       {
-		          if (errorCount == 0)
-		          {
-		             $(".alerts").append('<div class="alert">No Errors found!</div>');
-		             $(".alert").delay(2000).fadeOut(800);
-		          }
 
-		       },
-
-		       error : function(reason)
-		       {
-		          alert(reason);
-		       }
-		    });
-		}
-	 $("#checkText").click(function () {
-	 	if ($("#essay").length>0) {
-	 		id="essayDiv";
-	 		essayText = $("#essay").val().replace(/\r?\n/g,'<br/>'); //convert newlines into <br> tags
-
-		 	$(this).parent().append("<div id='"+id+"' contentEditable=true>"+essayText+"</div>");
-		 	check(id);
-		 	$("#essay").remove();
-		} else 
-		{
-			id="essayDiv";
-		 	check(id);
-		 }
-	 	
-	 });
-	</script>
 	</footer>
 </html>

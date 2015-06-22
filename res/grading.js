@@ -8,42 +8,72 @@ if (setOfComments.indexOf(currentComment)==-1) {
 	setOfComments.push(currentComment);
 };
 };
-
-//new Array from set of comments
 var arrayCommentsToEmail = [];
 var arrayCCboxes = [];
-
-$.each(setOfComments, function(index,value) {
-	arrayCommentsToEmail.push({
-		value:""});
-	arrayCCboxes.push({
-		value:""});
-});
-// console.log(arrayCommentsToEmail,arrayCCboxes);
-
-
-//new Array of checkboxes to check
-var checkboxesToCheck = setOfComments.slice();
-$.each(setOfComments, function(index, value) {
-	checkboxesToCheck[index]=[];
-	checkboxesToCheck[index].push([1,2,3]);
-})
-
-//getting currentCategory
 var currentCategory = arrayCommentsToEmail[0];
+var arrayCommentOptions = {};
 
-//adding options
-$.each(setOfComments, function (index, value) {
-$('#evalCategories').append($('<option>', { 
-    value: value,
-    text : value 
-}));
-});
-
-//total grade defaults
+//grades
 var defaultTotalGrade = parseInt($("#defaultTotalGradeInput").val());
 var defaultGrade= Math.floor(defaultTotalGrade/(setOfComments.length-1));
 var defaultAdjustGrade = Math.ceil(defaultGrade*.1);
+
+function reset() {
+	//comments
+	setOfComments = [];
+	for (var i = 0; i < COMMENTS.length; i++) {
+		currentComment = COMMENTS[i][0];
+		if (setOfComments.indexOf(currentComment)==-1) {
+			if (currentComment.length>15) {
+				setOfComments.push(currentComment.substring(0,15)+"...");
+			} else {
+			setOfComments.push(currentComment);
+			}
+		};
+	};
+	//new Array from set of comments
+	arrayCommentsToEmail = [];
+	arrayCCboxes = [];
+	arrayCommentOptions = {};
+
+	$.each(setOfComments, function(index,value) {
+		arrayCommentsToEmail.push({
+			value:""});
+		arrayCCboxes.push({
+			value:""});
+	});
+	currentCategory = arrayCommentsToEmail[0];
+	//emtpy eval Categories
+	$('#evalCategories').empty();
+
+	//adding options
+	$.each(setOfComments, function (index, value) {
+		$('#evalCategories').append($('<option>', { 
+		    value: value,
+		    text : value 
+		}));
+	});
+
+	//total grade defaults
+	defaultTotalGrade = parseInt($("#defaultTotalGradeInput").val());
+	defaultGrade= Math.floor(defaultTotalGrade/(setOfComments.length-1));
+	defaultAdjustGrade = Math.ceil(defaultGrade*.1);
+
+	//update default grade
+
+	updateTotalDefaultGrade();
+	changeTotalGrade();
+
+	//remove checked checkboxes
+	$('input:checked').each(function () {
+		$(this).prop("checked",false);
+	});
+
+	$('.checkBoxOptions').empty();
+
+}
+
+reset();
 
 function updateTotalDefaultGrade() {
 	defaultTotalGrade = parseInt($("#defaultTotalGradeInput").val());
@@ -60,7 +90,6 @@ function changeDefaultGradeTo(number) {
 }
 
 //adding grading categories
-// $('#gradeCategories').append('<div>out Of<input</div>';
 $.each(setOfComments, function (index, value) {
 	if (value !== "Praise") {
 		$('#gradeCategories').append('<div>'+value+': <input class="gradeOption" type="number" value="'+defaultGrade+
@@ -91,11 +120,8 @@ Kolich.Selector.getSelected = function(){
 Kolich.Selector.mouseup = function(){
   var st = Kolich.Selector.getSelected();
   if(st!=''){
-    // debugging 
-    //$(".selectedInfo").text(st);
     example = st;
   }
-  
 }
 //setting up document
 $(document).ready(function(){
@@ -111,6 +137,8 @@ function changeTotalGrade() {
 	ptsPossible = $("#defaultTotalGradeInput").val();
 	percent = Math.floor((total/ptsPossible)*100);
 	$("#totalGrade").text("Grand Total: "+total+"/"+ptsPossible+", "+percent+" percent");
+	// change running percent at top
+	$("#gradePercent").text("Grade: "+percent+" %");
 
 }
 function copyToClipboard(text) {
@@ -127,7 +155,6 @@ function checkAllSavedCheckboxes() {
 	if (arrayCCboxes[currentCategory] &&arrayCCboxes[currentCategory].length) {
 		$.each(arrayCCboxes[currentCategory],function(index,value) {
 			$('input[name="'+value+'"]').prop('checked', true);
-			// console.log(itExists('input[name="'+value+'"]'),value);
 		});
 	}
 }
@@ -152,9 +179,11 @@ function saveCheckedToArray() {
        var thisID = (this.checked ? $(this).attr("id") : "");
        // Get the selected options from nearest div by checkbox
        var selected = (this.checked ? $(this).closest("div").find("option:selected").val() : "");
+       //Get the full comment using arrayComment Dictionary
+       var fullComment = arrayCommentOptions[selected];
        ex = (this.checked ? $(this).closest("div").find("input[name='example']").val() : "");
        if (typeof ex==="undefined") {ex="";}
-       message+=selected+" "+ex;
+       message+=fullComment+" "+ex;
        tempID.push(thisID);
   	});
   	arrayCCboxes[currentCategory]=tempID;
@@ -162,10 +191,16 @@ function saveCheckedToArray() {
   	// Check that #otherComments not blank
   	comments = $('#otherComments').val();
 
-  	if (comments !== "undefined") {
+  	if (typeof comments != "undefined" && typeof currentCategory !='undefined') {
   		message+=comments;
+  		console.log(message)
+  		if (arrayCommentsToEmail[currentCategory]) {
+	  		arrayCommentsToEmail[currentCategory]+=message;
+	  	
+	  } else {
 	  	arrayCommentsToEmail[currentCategory]=message;
-	  	console.log("sending comments",arrayCommentsToEmail[currentCategory]);
+	  }
+	  console.log("sending comments",arrayCommentsToEmail[currentCategory]);
 	}
 }
 
@@ -189,6 +224,7 @@ $("#evalCategories").change(function() {
 	});
 
 	//set up the comments after user changes category
+	arrayCommentOptions = {}
 	$.each(COMMENTS, function(index,category) {
 
 		if (category[0]===currentCategory) {
@@ -196,15 +232,32 @@ $("#evalCategories").change(function() {
 			var kind = category[2];
 			var comments = category.slice(3,-1);
 			var htmlString = "";
+			var firstComment = comments[0].substring(0,25)+"...";
 
-			htmlString += '<div id="new'+kind+'"><input type="checkbox" id="'+kind+'Checkbox" name="'+kind+'Checkbox" class="checkbox">'+kind+'<select width="10" style="width: 10em" id="'+kind+'options">';
+			// set dictionary of current values
+			
+			$.each(comments, function(index,value) {
+				key = value.substring(0,25)+'...';
+				arrayCommentOptions[key] = value;
+			});
+
+			htmlString += '<div id="new'+kind+'"><input type="checkbox" id="'+kind+'Checkbox" name="'+kind+'Checkbox" class="checkbox">'+kind;
+			htmlString+='<select width="10" style="width: 10em" id="'+kind+'options">';
 			// gets each comment as option from list
 			$.each(comments, function(index,value) {
-				htmlString+='<option width="5" style="width: 5em">'+value+"</option>";
+				keyString = value.substring(0,25)+"...";
+				htmlString+='<option width="5" style="width: 5em">'+keyString+"</option>";
 			});
-			htmlString+='</select><button type="button" class="addExamples">Add Examples</button>';
+			htmlString+='</select>'
+			htmlString+='<button type="button" class="nextExample">Show Full Comment</button>';
+			htmlString+='<button type="button" class="addExamples">Add Example</button>';
 
-			$("div[id='"+type+"']").append(htmlString+'</div>');
+			$fullComment = $('<div class="fullComment">'+arrayCommentOptions[firstComment]+'</div>');
+
+
+
+			$("div[id='"+type+"']").append(htmlString).append($fullComment.hide()).append('</div>');
+
 			
 		}
 		
@@ -216,9 +269,13 @@ $("#evalCategories").change(function() {
 	$(".addExamples").click( function() {
 		type = $(this).parent().closest("div").attr("id").substring(3);
 		var $example = $('<div class="example"></div>');
-		$example.append('<input class="exampleError" type="text" name="example" value="'+type+" error example: "+example+'"/><input type="button" class="removebtn" value="." id="removebtn">')
+		var string = type+" example: '"+example+"...' ";
+		//TODO handle this so it shows up in div, NOT select options
+		// $example.append('<div><p>'+string+'</p></div>');
+
+		$example.append('<input class="exampleError" type="text" name="example" value="'+string+'"/><input type="button" class="removebtn" value="." id="removebtn">')
 		$(this).parent().append($example);
-		var string = type+" error example: "+example;
+		
 		console.log(string);
 	});
 
@@ -240,6 +297,7 @@ $(document).on("change", ".checkbox", function(){
         console.log("checking box");
 
     }
+
     else if($('input[name="'+currentCategory+'"]').val()<defaultGrade) {
     	$('input[name="'+currentCategory+'"]').val(parseInt($('input[name="'+currentCategory+'"]').val())+defaultAdjustGrade);
     	console.log("unchekced");
@@ -253,12 +311,13 @@ function generateCommentText(delimiter) {
 	var text = "Comments on your essay,"+delimiter+"=============="+delimiter+delimiter;
 	//iterate over keys in array
 	for(key in arrayCommentsToEmail) {
-	    if (arrayCommentsToEmail.hasOwnProperty(key) && arrayCommentsToEmail[key].length>0) {
-	    	if (arrayCommentsToEmail[key]!=="undefined") {
+	    if (arrayCommentsToEmail.hasOwnProperty(key) && arrayCommentsToEmail[key].length>9) {
+	    	if (typeof arrayCommentsToEmail[key] !='undefined') {
 		        console.log (key, arrayCommentsToEmail[key]);
 				text+=key+": "+delimiter+arrayCommentsToEmail[key];
 				text+=delimiter+delimiter;
 			}
+			else {}
 	    }
 	}
 
@@ -274,7 +333,12 @@ function generateCommentText(delimiter) {
 //copy To clipboard
 $(document).on("click", "#copyToClipboard", function(){
 	var text = generateCommentText("\n");
-	copyToClipboard(text);
+	//copyToClipboard(text);
+	// sent to new window
+	w = window.open();
+	w.document.title = "Graded Comments"
+	w.document.writeln("<pre>"+text+"</pre>");
+	
 	
 });
 
@@ -299,9 +363,56 @@ $(document).on("change", "#defaultTotalGradeInput", function() {
 	changeTotalGrade();
 });
 
-// parsing csv
-// var rows = s.split("\n");
-// var allData = rows.map(function (row) { return row.split(","); });
-// \t for tab in chrome
+//reseting categories
+$('#reset').click( function() {
+	reset();
+});
+
+// Check for the various File API support.
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+  // Great success! All the File APIs are supported.
+} else {
+  alert('The File APIs are not fully supported in this browser.');
+}
+
+
+//handle csv
+$("#csvFile").change(function(e) {
+	var ext = $("input#csvFile").val().split(".").pop().toLowerCase();
+
+	if($.inArray(ext, ["csv"]) == -1) {
+		alert('Upload CSV');
+		return false;
+	}
+    
+	if (e.target.files != undefined) {
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		
+		var rows = e.target.result.split("\n");
+		var allData = rows.map(function (row) { return row.split("\t"); });
+
+		//error if the data length is not at least 3 for first val
+		if (allData[0].length>1) {
+
+			COMMENTS =allData;
+		    reset();
+		}
+		else {
+			alert("your array is too short, needs to have min 3 cols");
+			console.log(allData[0].length);
+			}
+		};
+	reader.readAsText(e.target.files.item(0));
+	}
+	return false;
+});
+
+//change the option if checked
+$(document).on('click', '.nextExample', function() {
+	selected = $(this).prev().val();
+	$(this).parent().next().text(arrayCommentOptions[selected]).toggle();
+});
+//option change if user changes select
 
 

@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+	    <title>Quick Essay Grader</title>
+	    <link rel="stylesheet" type="text/css" href="css/main.css">
+		<!-- ATD styling -->
+		 <link rel="stylesheet" type="text/css" media="screen" href="css/atd.css" />
+	</head>
+	<body>
+		<div class="alerts">
+		<input type="submit" value="Email Comments">
+		<input type="text" value="user@email.com" id="email">
+		<input type="text" value="Your Essay" id="essayTitle">
+
+		<button type="button" id="copyToClipboard">Copy Comments</button>
+		<input type="file" name="csvFile" id="csvFile" />
+		</div>
+		<ul>
+			<li>
+				<!-- Essay here-->
+
+				<div class="selectedInfo">
+					<!-- test callbacks -->
+					<div id="callback_test" style="color:red">Test Callback Here</div>
+					<!-- ATD spelling check button -->
+					<button type="button" id="checkText">Auto Grade</button>
+					<a href="http://www.polishmywriting.com/" target="_blank">Check Writing using ATD</a>
+					<a href="https://app.grammarly.com/" target="_blank">Use Grammarly</a>
+					<span id="gradePercent" class='grade' ></span>
+				</div>
+
+				<div id="essay" class="essay" contentEditable="true">Essay Here</div>
+				<div class="GradingOptions">
+					<div id="gradeCategories"><h3>Grade out of <input type="number" value="60" id="defaultTotalGradeInput"/></h3></div>
+			</li>
+			<li>
+			<!-- Right Side Panel for Grading -->
+					<select name="EvalCategories" id="evalCategories">
+					</select>
+					<button type="button" id="reset">Reset Checkboxes</button>
+				</div>
+				<div class="checkBoxOptions">Options Show below</div>
+			</li>
+		</ul>
+		
+		
+		<br>
+		
+	</body>
+	<footer>
+		<!-- Jquery load from web -->
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+	  </script>
+	  <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+
+
+	 <!-- 2. load the atd.textarea.js - this script makes it easy to attach AtD to a textarea -->
+	 <script src="scripts/jquery.atd.textarea.js"></script>
+
+	 <!-- 3. this script is a hack that allows cross-domain AJAX -->
+	 <script src="scripts/csshttprequest.js"></script>
+
+	  <!-- load comments -->
+	  <script src="./res/allComments.js"></script>
+	  <!-- load main file -->
+	  <script src="./res/grading.js"></script>
+
+	  <script src="./res/grammarCheckInput.js"></script>
+	  <script src="./res/demoText.js"></script>
+	  <script src="./res/autoGrade.js"></script>
+	  <!-- load auto grade classes -->
+	  <script src="./res/paragraph.js"></script>
+	  
+	</footer>
+</html>
